@@ -3,9 +3,9 @@ import * as DB from "./store.js";
 
 const configured = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
 let client = null, currentUser = null, channel = null, pushTimer = 0;
-let status = { state: "unconfigured", email: "", message: "Supabase proje ayarları bekleniyor. Mevcut kayıtların bu cihazda korunuyor." };
-const emit = (state, message, email = currentUser?.email || "") => {
-  status = { state, message, email };
+let status = { state: "unconfigured", email: "", authenticated: false, canResend: false, errorCode: "", message: "Supabase proje ayarları bekleniyor. Mevcut kayıtların bu cihazda korunuyor." };
+const emit = (state, message, email = currentUser?.email || "", extra = {}) => {
+  status = { state, message, email, authenticated: Boolean(currentUser), canResend: false, errorCode: "", ...extra };
   window.dispatchEvent(new CustomEvent("cloudsync", { detail: status }));
 };
 async function getClient() {
@@ -110,7 +110,7 @@ async function attachUser(user) {
       if (stable(mergedProgress) !== stable(readProgress(payload.new.state))) await pushState();
       else emit("synced", "Antrenman günleri ve set işaretleri diğer cihazlarınla eşit.", user.email);
     }).subscribe((value, error) => { if (value === "CHANNEL_ERROR") emit("error", `Canlı eşitleme bağlantısı kurulamadı: ${error?.message || "Realtime durumunu kontrol et."}`, user.email); });
-  } catch (error) { emit("error", `Bulut eşitlemesi başarısız: ${error.message}`, user.email); }
+  } catch (error) { emit("error", `Bulut eşitlemesi başarısız: ${error.message}`, user.email, { errorCode: error.code || "" }); }
 }
 export async function initializeCloudSync() {
   if (!configured) { emit("unconfigured", "Bulut veritabanı için Supabase proje ayarları gerekiyor. Mevcut kayıtların bu cihazda korunuyor."); return; }
@@ -126,7 +126,13 @@ export async function createCloudAccount(email, password) {
   const { data, error } = await supabase.auth.signUp({ email, password });
   if (error) throw error;
   if (data.session?.user) { currentUser = data.session.user; await attachUser(currentUser); }
-  else emit("signed-out", "Hesap oluşturuldu. E-posta onayını tamamladıktan sonra giriş yap.", email);
+  else emit("awaiting-confirmation", "Kayıt isteği alındı. E-postandaki doğrulama bağlantısını aç; gelmediyse spam klasörünü kontrol et veya doğrulamayı tekrar gönder.", email, { canResend: true });
+}
+export async function resendCloudConfirmation(email) {
+  const supabase = await getClient();
+  const { error } = await supabase.auth.resend({ type: "signup", email: email.trim().toLowerCase() });
+  if (error) throw error;
+  emit("awaiting-confirmation", "Doğrulama e-postası yeniden gönderildi. Gelen kutunu ve spam klasörünü kontrol et.", email, { canResend: true });
 }
 export async function signInCloud(email, password) {
   const supabase = await getClient();

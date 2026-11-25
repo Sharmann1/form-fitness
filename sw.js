@@ -1,4 +1,4 @@
-const CACHE="form-fitness-v8";
+const CACHE="form-fitness-v9";
 const ASSETS=["./","./index.html","./manifest.webmanifest","./icon.svg","./src/main.js","./src/data.js","./src/store.js","./src/styles.css","./src/sync.js","./src/supabase-config.js","./movement-library/","./movement-library/index.html","./movement-library/main.js","./movement-library/styles.css"];
 self.addEventListener("install",e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))));
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k))))));
