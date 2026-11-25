@@ -7,6 +7,11 @@ create table if not exists public.fitness_states (
 
 alter table public.fitness_states enable row level security;
 
+-- This project uses explicit exposure grants. Only signed-in clients may access the row;
+-- the policies below further restrict every operation to the caller's own user_id.
+revoke all on table public.fitness_states from public, anon, authenticated;
+grant select, insert, update on table public.fitness_states to authenticated;
+
 drop policy if exists "Read own fitness state" on public.fitness_states;
 create policy "Read own fitness state" on public.fitness_states
   for select to authenticated using ((select auth.uid()) = user_id);
