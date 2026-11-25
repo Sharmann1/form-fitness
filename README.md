@@ -22,7 +22,7 @@ Ardından `http://localhost:8000` adresini açın.
 1. Bu klasörün içeriğini GitHub'da `form-fitness` adlı **Public** depoya yükleyin.
 2. `index.html` dosyası depo kök dizininde olmalı.
 3. Settings → Pages → Deploy from a branch → `main` → `/ (root)` → Save.
-4. Yayın adresi `https://KULLANICI.github.io/form-fitness/` biçiminde olur.
+4. Yayın adresi `https://sharmann1.github.io/form-fitness/?utm_source=chatgpt.com` biçiminde olur.
 
 ## Özellikler
 - Ana sayfa / günlük özet
