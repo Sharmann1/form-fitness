@@ -1,5 +1,9 @@
 # FORM Fitness
 
+The movement library pairs each of its 40 exercises with an exercise-specific video demonstration. Videos load only after opening a movement; the media credits and licenses are shown below each player. Most clips come from the CC0 Workout Free Videos set or the MIT-licensed Free Exercise DB with Videos project. Six movements use direct, privacy-enhanced YouTube embeds from NASM, Bodybuilding.com, ATHLEAN-X, Jack Hanrahan Fitness, or Instructor JP.
+
+The service worker activates new releases immediately and fetches app pages, scripts, and styles from the network first. This avoids leaving mobile devices on an old cached interface while preserving an offline fallback.
+
 Kişisel antrenman, takvim, hareket kütüphanesi, XP/rozet, kilo-ölçüm ve beslenme takip uygulaması.
 
 ## Teknoloji
