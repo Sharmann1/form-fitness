@@ -35,7 +35,7 @@ Ardından `http://localhost:8000` adresini açın.
 - XP puanları set tamamlama oranından türetilir; çift puan yoktur
 - Hareket kütüphanesi ve yazılı uygulama adımları
 - Kilo geçmişi grafiği ve vücut ölçümleri
-- 60'tan fazla yaygın yiyecekte arama; seçilen besin ve gramaja göre yaklaşık kalori/protein hesabı
+- 200'den fazla yiyecekte arama ve kategoriyle gezinme; seçilen besin ve gramaja göre yaklaşık kalori/protein hesabı
 - Öğün çeşitliliğine dayalı günlük beslenme özeti, su ve öğün kaydı
 - Rozetler ve seviye
 - JSON yedek dışa/içe aktarma
