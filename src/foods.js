@@ -62,19 +62,207 @@ export const FOOD_CATALOG = [
   {id:"cheese-toast",name:"Kaşarlı tost (tahmini)",kcal:290,protein:14,tags:["grain","protein"],icon:"🥪"},
   {id:"kebab",name:"Adana kebap (tahmini)",kcal:270,protein:18,tags:["protein"],icon:"🍢"},
   {id:"pasta-tomato",name:"Domates soslu makarna (tahmini)",kcal:155,protein:5,tags:["grain"],icon:"🍝"},
-  {id:"tuna-sandwich",name:"Ton balıklı sandviç (tahmini)",kcal:210,protein:15,tags:["protein","grain"],icon:"🥪"}
+  {id:"tuna-sandwich",name:"Ton balıklı sandviç (tahmini)",kcal:210,protein:15,tags:["protein","grain"],icon:"🥪"},
+  {id:"chicken-raw",name:"Tavuk göğsü (çiğ)",kcal:120,protein:22.5,tags:["protein","whole"],icon:"🍗"},
+  {id:"chicken-roast",name:"Fırında tavuk göğsü",kcal:165,protein:31,tags:["protein","whole"],icon:"🍗"},
+  {id:"chicken-thigh-roast",name:"Tavuk kalça (fırınlanmış)",kcal:179,protein:25,tags:["protein"],icon:"🍗"},
+  {id:"chicken-wing",name:"Tavuk kanat (pişmiş)",kcal:254,protein:23,tags:["protein"],icon:"🍗"},
+  {id:"chicken-mince",name:"Tavuk kıyması (pişmiş)",kcal:189,protein:27,tags:["protein"],icon:"🍗"},
+  {id:"turkey-roast",name:"Hindi eti (fırınlanmış)",kcal:147,protein:30,tags:["protein","whole"],icon:"🦃"},
+  {id:"beef-steak",name:"Dana biftek (ızgara, yağsız)",kcal:206,protein:29,tags:["protein","whole"],icon:"🥩"},
+  {id:"beef-mince",name:"Dana kıyma (%10 yağ, pişmiş)",kcal:217,protein:26,tags:["protein"],icon:"🥩"},
+  {id:"lamb",name:"Kuzu eti (ızgara)",kcal:258,protein:25,tags:["protein"],icon:"🍖"},
+  {id:"lamb-chop",name:"Kuzu pirzola (ızgara)",kcal:294,protein:24,tags:["protein"],icon:"🍖"},
+  {id:"beef-liver",name:"Dana ciğeri (pişmiş)",kcal:191,protein:29,tags:["protein"],icon:"🥩"},
+  {id:"sucuk",name:"Sucuk (pişmiş, tahmini)",kcal:450,protein:24,tags:["protein","packaged"],icon:"🌭"},
+  {id:"bacon-turkey",name:"Hindi füme (ortalama)",kcal:120,protein:20,tags:["protein","packaged"],icon:"🍗"},
+  {id:"white-fish",name:"Beyaz etli balık (pişmiş)",kcal:120,protein:24,tags:["protein","whole"],icon:"🐟"},
+  {id:"sea-bass",name:"Levrek (fırınlanmış)",aliases:["deniz levreği","sea bass"],kcal:124,protein:24,tags:["protein","whole"],icon:"🐟"},
+  {id:"sea-bream",name:"Çipura (fırınlanmış)",kcal:128,protein:23,tags:["protein","whole"],icon:"🐟"},
+  {id:"anchovy",name:"Hamsi (pişmiş)",kcal:205,protein:25,tags:["protein","whole"],icon:"🐟"},
+  {id:"sardines",name:"Sardalya (ızgara)",kcal:208,protein:25,tags:["protein","whole"],icon:"🐟"},
+  {id:"mackerel",name:"Uskumru (pişmiş)",kcal:262,protein:24,tags:["protein","whole"],icon:"🐟"},
+  {id:"shrimp",name:"Karides (haşlanmış)",kcal:99,protein:24,tags:["protein","whole"],icon:"🦐"},
+  {id:"squid",name:"Kalamar (ızgara)",kcal:92,protein:16,tags:["protein"],icon:"🦑"},
+  {id:"tuna-oil",name:"Ton balığı (yağda, süzülmüş)",kcal:198,protein:29,tags:["protein"],icon:"🐟"},
+  {id:"egg-fried",name:"Yumurta (sahanda, az yağlı)",kcal:196,protein:13,tags:["protein"],icon:"🍳"},
+  {id:"quail-egg",name:"Bıldırcın yumurtası (haşlanmış)",kcal:158,protein:13,tags:["protein","whole"],icon:"🥚"},
+  {id:"milk-whole",name:"Süt (tam yağlı)",kcal:61,protein:3.2,tags:["protein","whole"],icon:"🥛"},
+  {id:"milk-skim",name:"Süt (yağsız)",kcal:34,protein:3.4,tags:["protein","whole"],icon:"🥛"},
+  {id:"ayran",name:"Ayran (sade)",kcal:36,protein:2,tags:["protein","whole"],icon:"🥛"},
+  {id:"yogurt-lowfat",name:"Yoğurt (az yağlı)",kcal:63,protein:5.3,tags:["protein","whole"],icon:"🥣"},
+  {id:"yogurt-greek",name:"Yoğurt (süzme, tam yağlı)",kcal:97,protein:9,tags:["protein","whole"],icon:"🥣"},
+  {id:"labneh",name:"Labne peyniri",kcal:230,protein:6,tags:["protein"],icon:"🧀"},
+  {id:"kasar",name:"Kaşar peyniri",kcal:350,protein:25,tags:["protein"],icon:"🧀"},
+  {id:"cheddar",name:"Çedar peyniri",kcal:403,protein:25,tags:["protein"],icon:"🧀"},
+  {id:"mozzarella",name:"Mozzarella peyniri",kcal:280,protein:28,tags:["protein"],icon:"🧀"},
+  {id:"parmesan",name:"Parmesan peyniri",kcal:431,protein:38,tags:["protein"],icon:"🧀"},
+  {id:"tulum",name:"Tulum peyniri",kcal:350,protein:22,tags:["protein"],icon:"🧀"},
+  {id:"cream-cheese",name:"Krem peynir",kcal:342,protein:6,tags:["protein"],icon:"🧀"},
+  {id:"ricotta",name:"Ricotta peyniri",kcal:174,protein:11,tags:["protein"],icon:"🧀"},
+  {id:"ice-cream",name:"Dondurma (sade, tahmini)",kcal:207,protein:3.5,tags:["treat","dairy"],icon:"🍦"},
+  {id:"quinoa",name:"Kinoa (pişmiş)",kcal:120,protein:4.4,tags:["carb","whole"],icon:"🌾"},
+  {id:"couscous",name:"Kuskus (pişmiş)",kcal:112,protein:3.8,tags:["carb"],icon:"🍲"},
+  {id:"brown-rice",name:"Esmer pirinç (pişmiş)",kcal:123,protein:2.7,tags:["carb","whole"],icon:"🍚"},
+  {id:"white-rice",name:"Beyaz pirinç (haşlanmış)",kcal:130,protein:2.4,tags:["carb"],icon:"🍚"},
+  {id:"oatmeal",name:"Yulaf lapası (suyla pişmiş)",kcal:71,protein:2.5,tags:["carb","whole"],icon:"🥣"},
+  {id:"cornmeal",name:"Mısır unu lapası (pişmiş)",kcal:85,protein:2,tags:["carb"],icon:"🌽"},
+  {id:"white-bread",name:"Beyaz ekmek",kcal:266,protein:8.9,tags:["carb"],icon:"🍞"},
+  {id:"rye-bread",name:"Çavdar ekmeği",kcal:259,protein:8.5,tags:["carb","whole"],icon:"🍞"},
+  {id:"sourdough",name:"Ekşi mayalı ekmek",kcal:289,protein:11,tags:["carb"],icon:"🍞"},
+  {id:"corn-tortilla",name:"Mısır tortilla",kcal:218,protein:5.7,tags:["carb"],icon:"🌮"},
+  {id:"crackers",name:"Tuzlu kraker",kcal:421,protein:9,tags:["carb","treat"],icon:"🥨"},
+  {id:"granola",name:"Granola (ortalama)",kcal:471,protein:10,tags:["carb","treat"],icon:"🥣"},
+  {id:"rice-cake",name:"Pirinç patlağı",kcal:387,protein:8,tags:["carb"],icon:"🍘"},
+  {id:"red-lentil",name:"Kırmızı mercimek (haşlanmış)",kcal:116,protein:9,tags:["protein","carb","whole"],icon:"🫘"},
+  {id:"kidney-bean",name:"Barbunya (haşlanmış)",kcal:127,protein:8.7,tags:["protein","carb","whole"],icon:"🫘"},
+  {id:"green-peas",name:"Bezelye (haşlanmış)",kcal:84,protein:5.4,tags:["protein","veg","whole"],icon:"🫛"},
+  {id:"hummus",name:"Humus (tahmini)",kcal:166,protein:8,tags:["protein","veg","whole"],icon:"🫘"},
+  {id:"falafel",name:"Falafel (tahmini)",kcal:333,protein:13,tags:["protein","veg"],icon:"🧆"},
+  {id:"soybeans",name:"Soya fasulyesi (haşlanmış)",kcal:172,protein:18,tags:["protein","whole"],icon:"🫘"},
+  {id:"tofu",name:"Tofu (sade)",kcal:144,protein:17,tags:["protein","whole"],icon:"🧊"},
+  {id:"onion",name:"Soğan (çiğ)",kcal:40,protein:1.1,tags:["veg","whole"],icon:"🧅"},
+  {id:"red-pepper",name:"Kırmızı biber (çiğ)",kcal:31,protein:1,tags:["veg","whole"],icon:"🫑"},
+  {id:"green-pepper",name:"Yeşil biber (çiğ)",kcal:20,protein:0.9,tags:["veg","whole"],icon:"🫑"},
+  {id:"carrot",name:"Havuç (çiğ)",kcal:41,protein:0.9,tags:["veg","whole"],icon:"🥕"},
+  {id:"lettuce",name:"Marul",kcal:15,protein:1.4,tags:["veg","whole"],icon:"🥬"},
+  {id:"cabbage",name:"Lahana (çiğ)",kcal:25,protein:1.3,tags:["veg","whole"],icon:"🥬"},
+  {id:"cauliflower",name:"Karnabahar (haşlanmış)",kcal:23,protein:1.8,tags:["veg","whole"],icon:"🥦"},
+  {id:"zucchini",name:"Kabak (pişmiş)",kcal:17,protein:1.2,tags:["veg","whole"],icon:"🥒"},
+  {id:"eggplant",name:"Patlıcan (ızgara)",kcal:35,protein:1,tags:["veg","whole"],icon:"🍆"},
+  {id:"mushroom",name:"Mantar (pişmiş)",kcal:28,protein:3.6,tags:["veg","whole"],icon:"🍄"},
+  {id:"asparagus",name:"Kuşkonmaz (haşlanmış)",kcal:22,protein:2.4,tags:["veg","whole"],icon:"🌱"},
+  {id:"beetroot",name:"Pancar (haşlanmış)",kcal:44,protein:1.7,tags:["veg","whole"],icon:"🫜"},
+  {id:"pumpkin",name:"Balkabağı (pişmiş)",kcal:34,protein:1.1,tags:["veg","whole"],icon:"🎃"},
+  {id:"corn",name:"Mısır (haşlanmış)",kcal:96,protein:3.4,tags:["veg","carb","whole"],icon:"🌽"},
+  {id:"green-beans",name:"Taze fasulye (pişmiş)",kcal:35,protein:1.9,tags:["veg","whole"],icon:"🫛"},
+  {id:"brussels-sprout",name:"Brüksel lahanası (pişmiş)",kcal:36,protein:2.6,tags:["veg","whole"],icon:"🥬"},
+  {id:"celery",name:"Kereviz (çiğ)",kcal:16,protein:0.7,tags:["veg","whole"],icon:"🥬"},
+  {id:"radish",name:"Turp (çiğ)",kcal:16,protein:0.7,tags:["veg","whole"],icon:"🔴"},
+  {id:"rocket",name:"Roka (çiğ)",kcal:25,protein:2.6,tags:["veg","whole"],icon:"🥬"},
+  {id:"parsley",name:"Maydanoz (çiğ)",kcal:36,protein:3,tags:["veg","whole"],icon:"🌿"},
+  {id:"garlic",name:"Sarımsak (çiğ)",kcal:149,protein:6.4,tags:["veg","whole"],icon:"🧄"},
+  {id:"pear",name:"Armut",kcal:57,protein:0.4,tags:["fruit","whole"],icon:"🍐"},
+  {id:"peach",name:"Şeftali",kcal:39,protein:0.9,tags:["fruit","whole"],icon:"🍑"},
+  {id:"nectarine",name:"Nektarin",kcal:44,protein:1.1,tags:["fruit","whole"],icon:"🍑"},
+  {id:"grapes",name:"Üzüm",kcal:69,protein:0.7,tags:["fruit","whole"],icon:"🍇"},
+  {id:"watermelon",name:"Karpuz",kcal:30,protein:0.6,tags:["fruit","whole"],icon:"🍉"},
+  {id:"melon",name:"Kavun",kcal:34,protein:0.8,tags:["fruit","whole"],icon:"🍈"},
+  {id:"kiwi",name:"Kivi",kcal:61,protein:1.1,tags:["fruit","whole"],icon:"🥝"},
+  {id:"pineapple",name:"Ananas",kcal:50,protein:0.5,tags:["fruit","whole"],icon:"🍍"},
+  {id:"mango",name:"Mango",kcal:60,protein:0.8,tags:["fruit","whole"],icon:"🥭"},
+  {id:"cherries",name:"Kiraz",kcal:63,protein:1.1,tags:["fruit","whole"],icon:"🍒"},
+  {id:"blueberries",name:"Yaban mersini",kcal:57,protein:0.7,tags:["fruit","whole"],icon:"🫐"},
+  {id:"pomegranate",name:"Nar",kcal:83,protein:1.7,tags:["fruit","whole"],icon:"🍎"},
+  {id:"lemon",name:"Limon",kcal:29,protein:1.1,tags:["fruit","whole"],icon:"🍋"},
+  {id:"dried-apricot",name:"Kuru kayısı",kcal:241,protein:3.4,tags:["fruit"],icon:"🍑"},
+  {id:"dates",name:"Hurma",kcal:282,protein:2.5,tags:["fruit"],icon:"🌴"},
+  {id:"raisins",name:"Kuru üzüm",kcal:299,protein:3.1,tags:["fruit"],icon:"🍇"},
+  {id:"walnuts",name:"Ceviz içi",kcal:654,protein:15.2,tags:["whole"],icon:"🥜"},
+  {id:"hazelnuts",name:"Fındık içi",kcal:628,protein:15,tags:["whole"],icon:"🌰"},
+  {id:"pistachio",name:"Antep fıstığı",kcal:560,protein:20,tags:["whole"],icon:"🥜"},
+  {id:"cashews",name:"Kaju",kcal:553,protein:18,tags:["whole"],icon:"🥜"},
+  {id:"pumpkin-seed",name:"Kabak çekirdeği içi",kcal:559,protein:30,tags:["whole"],icon:"🌱"},
+  {id:"sunflower-seed",name:"Ay çekirdeği içi",kcal:584,protein:21,tags:["whole"],icon:"🌻"},
+  {id:"chia",name:"Chia tohumu",kcal:486,protein:17,tags:["whole"],icon:"🌱"},
+  {id:"flaxseed",name:"Keten tohumu",kcal:534,protein:18,tags:["whole"],icon:"🌱"},
+  {id:"tahini",name:"Tahin",kcal:595,protein:17,tags:["whole"],icon:"🥣"},
+  {id:"honey",name:"Bal",kcal:304,protein:0.3,tags:["treat"],icon:"🍯"},
+  {id:"sugar",name:"Toz şeker",kcal:387,protein:0,tags:["treat"],icon:"🍬"},
+  {id:"mayonnaise",name:"Mayonez",kcal:680,protein:1,tags:["fat","packaged"],icon:"🥄"},
+  {id:"ketchup",name:"Ketçap",kcal:112,protein:1.3,tags:["packaged"],icon:"🍅"},
+  {id:"turkish-coffee",name:"Türk kahvesi (şekersiz)",kcal:2,protein:0.1,tags:["drink"],icon:"☕"},
+  {id:"tea",name:"Çay (şekersiz)",kcal:1,protein:0,tags:["drink"],icon:"🫖"},
+  {id:"orange-juice",name:"Portakal suyu (taze)",kcal:45,protein:0.7,tags:["drink"],icon:"🧃"},
+  {id:"lemonade",name:"Limonata (tahmini)",kcal:40,protein:0,tags:["drink","treat"],icon:"🍋"},
+  {id:"cola",name:"Kola (şekerli)",kcal:42,protein:0,tags:["drink","treat"],icon:"🥤"},
+  {id:"sparkling-water",name:"Maden suyu (sade)",kcal:0,protein:0,tags:["drink"],icon:"🫧"},
+  {id:"lentil-soup-home",name:"Ev yapımı mercimek çorbası (tahmini)",kcal:58,protein:3.6,tags:["veg","whole"],icon:"🥣"},
+  {id:"tarhana",name:"Tarhana çorbası (tahmini)",kcal:60,protein:2.5,tags:["veg"],icon:"🥣"},
+  {id:"chicken-soup-home",name:"Şehriyeli tavuk çorbası (tahmini)",kcal:55,protein:4,tags:["protein","veg"],icon:"🥣"},
+  {id:"tomato-soup",name:"Domates çorbası (tahmini)",kcal:45,protein:1.5,tags:["veg"],icon:"🥣"},
+  {id:"yayla-soup",name:"Yayla çorbası (tahmini)",kcal:65,protein:3,tags:["protein","veg"],icon:"🥣"},
+  {id:"islim-kebab",name:"İslim kebabı (tahmini)",kcal:155,protein:10,tags:["protein","veg"],icon:"🍲"},
+  {id:"iskender",name:"İskender kebap (tahmini)",kcal:230,protein:14,tags:["protein","treat"],icon:"🍽️"},
+  {id:"chicken-shish",name:"Tavuk şiş (ızgara)",kcal:160,protein:28,tags:["protein","whole"],icon:"🍢"},
+  {id:"lamb-shish",name:"Kuzu şiş (ızgara)",kcal:260,protein:25,tags:["protein"],icon:"🍢"},
+  {id:"turkish-meatball",name:"Izgara kasap köfte (tahmini)",kcal:255,protein:18,tags:["protein"],icon:"🍽️"},
+  {id:"stuffed-pepper",name:"Biber dolması (tahmini)",kcal:145,protein:4,tags:["veg","carb"],icon:"🫑"},
+  {id:"olive-oil-stuffed-vine",name:"Zeytinyağlı yaprak sarma (tahmini)",kcal:175,protein:3,tags:["veg","carb"],icon:"🍃"},
+  {id:"cabbage-roll",name:"Etli lahana sarması (tahmini)",kcal:135,protein:8,tags:["protein","veg"],icon:"🥬"},
+  {id:"imam-bayildi",name:"İmam bayıldı (tahmini)",kcal:115,protein:2,tags:["veg"],icon:"🍆"},
+  {id:"menemen-cheese",name:"Kaşarlı menemen (tahmini)",kcal:145,protein:9,tags:["protein","veg"],icon:"🍳"},
+  {id:"sucuk-egg",name:"Sucuklu yumurta (tahmini)",kcal:250,protein:15,tags:["protein"],icon:"🍳"},
+  {id:"spinach-egg",name:"Ispanaklı yumurta (tahmini)",kcal:130,protein:9,tags:["protein","veg"],icon:"🍳"},
+  {id:"gözleme",name:"Peynirli gözleme (tahmini)",kcal:280,protein:10,tags:["grain","protein"],icon:"🫓"},
+  {id:"spinach-gozleme",name:"Ispanaklı gözleme (tahmini)",kcal:250,protein:8,tags:["grain","veg"],icon:"🫓"},
+  {id:"simit",name:"Simit (ortalama)",kcal:350,protein:10,tags:["grain"],icon:"🥯"},
+  {id:"poğaça",name:"Sade poğaça (tahmini)",kcal:360,protein:8,tags:["grain","treat"],icon:"🥐"},
+  {id:"cheese-pogaca",name:"Peynirli poğaça (tahmini)",kcal:340,protein:10,tags:["grain","protein","treat"],icon:"🥐"},
+  {id:"sucuk-pide",name:"Sucuklu pide (tahmini)",kcal:290,protein:13,tags:["grain","protein","treat"],icon:"🥙"},
+  {id:"cheese-pide",name:"Kaşarlı pide (tahmini)",kcal:280,protein:12,tags:["grain","protein"],icon:"🥙"},
+  {id:"mantı",name:"Mantı (yoğurtlu, tahmini)",kcal:190,protein:9,tags:["grain","protein"],icon:"🥟"},
+  {id:"manti-dry",name:"Mantı (haşlanmış, yoğurtsuz)",kcal:170,protein:8,tags:["grain","protein"],icon:"🥟"},
+  {id:"pasta-bolognese",name:"Bolonez soslu makarna (tahmini)",kcal:165,protein:8,tags:["grain","protein"],icon:"🍝"},
+  {id:"rice-chicken-plate",name:"Tavuk, pilav ve salata tabağı (tahmini)",kcal:155,protein:12,tags:["protein","carb","veg"],icon:"🍱"},
+  {id:"kuru-fasulye-rice",name:"Kuru fasulye ve pilav (tahmini)",kcal:155,protein:6,tags:["protein","carb"],icon:"🍛"},
+  {id:"mercimek-kofte",name:"Mercimek köftesi (tahmini)",kcal:165,protein:6,tags:["protein","veg","carb"],icon:"🫘"},
+  {id:"kisir",name:"Kısır (tahmini)",kcal:150,protein:4,tags:["veg","carb"],icon:"🥗"},
+  {id:"cacik",name:"Cacık (sade, tahmini)",kcal:45,protein:3,tags:["protein","veg"],icon:"🥣"},
+  {id:"haydari",name:"Haydari (tahmini)",kcal:150,protein:6,tags:["protein"],icon:"🥣"},
+  {id:"hunkar-begendi",name:"Hünkâr beğendi (tahmini)",kcal:170,protein:8,tags:["protein","veg"],icon:"🍲"},
+  {id:"sutlac",name:"Sütlaç (tahmini)",kcal:125,protein:3,tags:["dairy","treat"],icon:"🍮"},
+  {id:"kazandibi",name:"Kazandibi (tahmini)",kcal:180,protein:4,tags:["dairy","treat"],icon:"🍮"},
+  {id:"kunefe",name:"Künefe (tahmini)",kcal:390,protein:10,tags:["dairy","treat"],icon:"🧀"},
+  {id:"revani",name:"Revani (tahmini)",kcal:330,protein:5,tags:["treat"],icon:"🍰"},
+  {id:"lokum",name:"Lokum (ortalama)",kcal:330,protein:0.5,tags:["treat"],icon:"🍬"},
+  {id:"sugar-free-soda",name:"Şekersiz gazlı içecek",aliases:["şekersiz kola","zero kola","zero cola"],kcal:1,protein:0,tags:["drink"],icon:"🥤"},
+  {id:"protein-bar",name:"Protein barı (ortalama)",kcal:350,protein:25,tags:["protein","packaged"],icon:"🍫"},
+  {id:"whey-isolate",name:"Whey isolate protein (toz)",kcal:370,protein:85,tags:["protein","packaged"],icon:"🥤"},
+  {id:"protein-pudding",name:"Protein pudingi (ortalama)",kcal:90,protein:10,tags:["protein","packaged"],icon:"🍮"}
 ];
 
 export const FOOD_DATA_SOURCE = "USDA FoodData Central; karışık yemekler yaklaşık değerdir.";
 
+export const FOOD_GROUPS = [
+  {id:"popular",label:"Sık seçilen"},{id:"all",label:"Tümü"},{id:"protein",label:"Et · balık · yumurta"},{id:"dairy",label:"Süt · peynir"},
+  {id:"grains",label:"Tahıl · bakliyat"},{id:"vegetables",label:"Sebze"},{id:"fruit",label:"Meyve"},
+  {id:"turkish",label:"Türk yemekleri"},{id:"snacks",label:"Atıştırmalık"},{id:"drinks",label:"İçecek"}
+];
+
 const normalize = value => String(value || "").trim().toLocaleLowerCase("tr-TR").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replaceAll("ı", "i");
 
-export function searchFoods(query, limit = 7) {
+export function foodGroup(food) {
+  const name=normalize(food.name),tags=food.tags||[];
+  if(/doner|kebap|lahmacun|borek|pide|menemen|simit|pogaca|manti|gozleme|sarma|dolma|kisir|cacik|haydari|iskender|sutlac|kazandibi|kunefe|revani|lokum|corbasi|hunkar|imam bayildi|pilav|fasulye|tarhana|mercimek kofte|karniyarik/.test(name))return "turkish";
+  if(tags.includes("drink"))return "drinks";
+  if(tags.includes("fruit"))return "fruit";
+  if(tags.includes("veg"))return "vegetables";
+  if(tags.includes("dairy")||/sut|yogurt|ayran|kefir|peynir|lor|labne|kasar|mozzarella|parmesan|tulum|ricotta|cream cheese/.test(name))return "dairy";
+  if(tags.includes("treat"))return "snacks";
+  if(tags.includes("protein"))return "protein";
+  if(tags.includes("carb")||tags.includes("grain"))return "grains";
+  return "grains";
+}
+
+const popularFoodIds=["chicken-breast","egg","greek-yogurt","oats","rice","banana","salmon","lentils","chicken-rice","tuna","apple","menemen-cheese"];
+export function getFoodsByGroup(group="popular",limit=12){
+  const list=group==="popular"?popularFoodIds.map(id=>FOOD_CATALOG.find(food=>food.id===id)).filter(Boolean):FOOD_CATALOG.filter(food=>group==="all"||foodGroup(food)===group);
+  return list.slice(0,limit);
+}
+
+export function nutrientsForPortion(food,grams){
+  const factor=Math.max(0,Number(grams)||0)/100;
+  return {kcal:Math.round(food.kcal*factor),protein:Number((food.protein*factor).toFixed(1))};
+}
+
+export function searchFoods(query, limit = 12) {
   const normalized = normalize(query);
   if (normalized.length < 2) return [];
+  const words=normalized.split(/\s+/).filter(Boolean);
   return FOOD_CATALOG
-    .map(food => { const name = normalize(food.name); return { food, score: name.startsWith(normalized) ? 0 : name.includes(normalized) ? 1 : 2 }; })
-    .filter(item => item.score < 2)
+    .map(food => { const name = normalize(food.name),aliases=(food.aliases||[]).map(normalize),allNames=[name,...aliases],matches=allNames.map(candidate=>candidate.startsWith(normalized)?0:candidate.includes(normalized)?1:words.every(word=>candidate.includes(word))?2:3),score=Math.min(...matches); return { food, score }; })
+    .filter(item => item.score < 3)
     .sort((a, b) => a.score - b.score || a.food.name.localeCompare(b.food.name, "tr"))
     .slice(0, limit)
     .map(item => item.food);

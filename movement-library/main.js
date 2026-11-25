@@ -83,7 +83,7 @@ content.addEventListener("click", event => {
 });
 render();
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
-  const refreshKey = "form-fitness-sw-v12-refreshed";
+  const refreshKey = "form-fitness-sw-v13-refreshed";
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     try { if (sessionStorage.getItem(refreshKey)) return; sessionStorage.setItem(refreshKey, "1"); } catch { return; }
     location.reload();
