@@ -1,4 +1,4 @@
-const CACHE="form-fitness-v10";
+const CACHE="form-fitness-v11";
 const ASSETS=["./","./index.html","./manifest.webmanifest","./icon.svg","./src/main.js","./src/data.js","./src/store.js","./src/styles.css","./src/sync.js","./src/supabase-config.js","./src/exercise-demos.js","./movement-library/","./movement-library/index.html","./movement-library/main.js","./movement-library/styles.css"];
 const APP_ASSET=/\.(?:html|m?js|css)(?:\?.*)?$/i;
 self.addEventListener("install",event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting())));

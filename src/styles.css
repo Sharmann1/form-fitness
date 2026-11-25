@@ -60,6 +60,31 @@ body{background:radial-gradient(ellipse at 80% -10%,var(--accent-glow),transpare
 @media(max-width:760px){.theme-picker{gap:5px;padding:3px 5px}.theme-swatch{width:18px;height:18px}.top-actions{gap:6px}.chat-launcher{right:13px;bottom:78px;padding:10px 13px}.chat-panel{right:10px;bottom:138px;width:calc(100vw - 20px);height:min(500px,calc(100dvh - 160px))}}
 @media(max-width:380px){.top-actions .xp-chip{display:none}.eyebrow{letter-spacing:.04em}.theme-swatch{width:17px;height:17px}}
 @media(prefers-reduced-motion:reduce){.motion-body,.motion-arms,.motion-legs,.motion-hip-torso,.motion-hip-legs,.motion-path{animation:none!important}}
+
+/* Readable, lively details that stay light on mobile. */
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.55}
+.page-content{animation:page-enter .38s cubic-bezier(.2,.75,.3,1) both}
+.card p,.card-head p,.muted,.task-row small,.exercise-meta,.form-stack label,.measure-grid label,.topbar .eyebrow{font-size:14px}
+.card small,.sync-panel>small{line-height:1.55}
+.card,.stat-card,.exercise-card,.performance-hero{animation:card-enter .48s cubic-bezier(.2,.75,.3,1) both}
+.stats-grid>.stat-card:nth-child(2){animation-delay:45ms}.stats-grid>.stat-card:nth-child(3){animation-delay:90ms}.stats-grid>.stat-card:nth-child(4){animation-delay:135ms}
+.performance-hero{box-shadow:0 18px 55px #0002}
+.emblem-orbit.orbit-one{animation:orbit-spin 24s linear infinite}.emblem-orbit.orbit-two{animation:orbit-spin 30s linear infinite reverse}
+.emblem-core{animation:emblem-pulse 3.4s ease-in-out infinite}
+.btn,.nav-item,.mobile-nav button,.account-shortcut{transition:transform .18s ease,background-color .18s ease,border-color .18s ease,color .18s ease}
+.btn:hover,.account-shortcut:hover{transform:translateY(-1px)}
+.account-shortcut{display:inline-flex;align-items:center;gap:6px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);font:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.account-shortcut[data-page="profile"]{white-space:nowrap}
+.chat-launcher{animation:chat-pop .45s .8s both}
+.demo-fallback{margin:8px 0 0;text-align:center;color:var(--muted);font-size:13px}.demo-fallback a{color:var(--green);font-weight:700}.demo-fallback[hidden]{display:none}
+@keyframes page-enter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes card-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes orbit-spin{to{transform:rotate(360deg)}}
+@keyframes emblem-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.045)}}
+@keyframes chat-pop{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:760px){.topbar{gap:8px}.top-actions{flex-wrap:nowrap}.account-shortcut{width:38px;height:38px;justify-content:center;padding:0;font-size:18px}.account-shortcut span{display:none}.mobile-nav{height:calc(66px + env(safe-area-inset-bottom));padding-bottom:calc(5px + env(safe-area-inset-bottom));}.mobile-nav button{min-height:54px}.mobile-nav button small{font-size:11px}.chat-launcher{bottom:calc(78px + env(safe-area-inset-bottom))}.chat-panel{bottom:calc(138px + env(safe-area-inset-bottom))}}
+@media(max-width:400px){.top-actions .xp-chip{display:none}.topbar{padding-inline:12px}.topbar h1{font-size:19px}.theme-picker{gap:3px;padding:3px}.theme-swatch{width:16px;height:16px}.page-content{padding-inline:11px}}
+@media(prefers-reduced-motion:reduce){.page-content,.card,.stat-card,.exercise-card,.performance-hero,.emblem-orbit,.emblem-core,.chat-launcher{animation:none!important}}
 .sync-panel{display:grid;gap:12px}.sync-status{margin:0;padding:12px 13px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font-size:14px}.sync-account{margin:0;color:var(--green);font-weight:700}.sync-actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center}.sync-panel>small{line-height:1.5}.sync-panel button:disabled{opacity:.5;cursor:not-allowed}
 .sync-consent{display:grid!important;grid-template-columns:20px 1fr;align-items:start;gap:9px!important;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);font-size:13px!important;line-height:1.5}.sync-consent input{width:17px!important;height:17px;margin:2px 0 0;accent-color:var(--green)}
 .sync-panel [hidden]{display:none!important}
