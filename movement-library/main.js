@@ -36,9 +36,10 @@ function animation(ex) {
   const licenseLink = demo.licenseUrl ? ` · <a href="${escapeHtml(demo.licenseUrl)}" target="_blank" rel="noopener noreferrer">Lisans</a>` : "";
   const credit = `<p class="demo-source">Gösterim: <b>${escapeHtml(demo.title)}</b> · ${sourceLink}${licenseLink}</p>`;
   if (demo.kind === "youtube") {
-    return `<div class="demo-media demo-youtube"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(demo.videoId)}?rel=0" title="${escapeHtml(ex.name)} hareket gösterimi" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>${credit}`;
+    const watchUrl = `https://www.youtube.com/watch?v=${encodeURIComponent(demo.videoId)}`;
+    return `<div class="demo-media demo-youtube"><iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(demo.videoId)}?rel=0" title="${escapeHtml(ex.name)} hareket gösterimi" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div><p class="demo-fallback">Video açılmazsa <a href="${watchUrl}" target="_blank" rel="noopener noreferrer">YouTube'da aç</a>.</p>${credit}`;
   }
-  return `<div class="demo-media"><video controls muted autoplay loop playsinline preload="none" poster="${escapeHtml(demo.posterUrl || "../icon.svg")}" aria-label="${escapeHtml(ex.name)} hareket gösterimi"><source src="${escapeHtml(demo.videoUrl)}" type="video/mp4">Tarayıcın video oynatmayı desteklemiyor. <a href="${escapeHtml(demo.videoUrl)}" target="_blank" rel="noopener noreferrer">Videoyu aç</a></video><span class="demo-play-hint">Kısa teknik gösterim · Sessiz ve döngülü</span></div>${credit}`;
+  return `<div class="demo-media"><video controls playsinline preload="metadata" poster="${escapeHtml(demo.posterUrl || "../icon.svg")}" aria-label="${escapeHtml(ex.name)} hareket gösterimi" data-demo-video><source src="${escapeHtml(demo.videoUrl)}" type="video/mp4">Tarayıcın video oynatmayı desteklemiyor.</video><div class="demo-play-hint" data-video-status role="status">Videoyu izlemek için oynat düğmesine dokun</div></div><p class="demo-fallback" data-video-fallback hidden>Video bu cihazda açılamadı. <a href="${escapeHtml(demo.videoUrl)}" target="_blank" rel="noopener noreferrer">Videoyu yeni sekmede aç</a> · ${sourceLink}</p>${credit}`;
 }
 function renderDetail(ex) {
   return `<article class="detail"><button class="detail-back" type="button" data-back>← Tüm hareketler</button><header class="detail-hero"><span class="movement-icon detail-icon">${symbol(ex)}</span><div><span class="muscle-tag">${escapeHtml(ex.muscle)} · ${category(ex)}</span><h2>${escapeHtml(ex.name)}</h2><p>${escapeHtml(ex.equipment)}</p></div></header><section class="demo" aria-label="${escapeHtml(ex.name)} için hareket videosu"><div class="demo-head"><div><b>Hareketi izle</b><span>Doğru formu kısa videoda gör</span></div><span class="demo-badge">VİDEO REHBER</span></div>${animation(ex)}</section><div class="detail-columns"><section><h3>Nasıl yapılır?</h3><ol class="steps">${ex.steps.map(step => `<li>${escapeHtml(step)}</li>`).join("")}</ol></section><aside class="tip"><b>Teknik ipuçları</b><ul class="cues">${ex.cues.map(cue => `<li>${escapeHtml(cue)}</li>`).join("")}</ul><small>Program önerisi: ${ex.sets} set · ${escapeHtml(ex.reps)} tekrar · ${ex.rest} sn dinlenme</small><p class="load">Başlangıç yükü: ${escapeHtml(ex.load || "Hafif yükle başla")}</p></aside></div></article>`;
@@ -52,6 +53,19 @@ function render() {
   }
   content.innerHTML = `<div class="library-controls"><label class="search"><span>⌕</span><input type="search" id="movement-search" placeholder="Hareket, kas grubu veya ekipman ara…" value="${escapeHtml(state.query)}" autocomplete="off"></label><div class="filters" role="group" aria-label="Kas grubu filtresi">${categories.map(name => `<button class="filter" type="button" data-filter="${name}" aria-pressed="${state.filter === name}">${name}</button>`).join("")}</div></div><div id="movement-results">${cards(results())}</div>`;
 }
+content.addEventListener("error", event => {
+  const video = event.target.closest?.("[data-demo-video]");
+  if (!video) return;
+  const status = content.querySelector("[data-video-status]");
+  const fallback = content.querySelector("[data-video-fallback]");
+  if (status) status.textContent = "Video yüklenemedi";
+  if (fallback) fallback.hidden = false;
+}, true);
+content.addEventListener("playing", event => {
+  if (!event.target.matches?.("[data-demo-video]")) return;
+  const status = content.querySelector("[data-video-status]");
+  if (status) status.textContent = "Kısa teknik gösterim";
+}, true);
 content.addEventListener("input", event => { if (event.target.id !== "movement-search") return; state.query = event.target.value; state.limit = 18; $("#movement-results").innerHTML = cards(results()); });
 content.addEventListener("click", event => {
   const filter = event.target.closest("[data-filter]");
@@ -63,7 +77,7 @@ content.addEventListener("click", event => {
 });
 render();
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
-  const refreshKey = "form-fitness-sw-v10-refreshed";
+  const refreshKey = "form-fitness-sw-v11-refreshed";
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     try { if (sessionStorage.getItem(refreshKey)) return; sessionStorage.setItem(refreshKey, "1"); } catch { return; }
     location.reload();
