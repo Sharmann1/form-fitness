@@ -1,8 +1,9 @@
 import { PROGRAM, LIBRARY_EXTRAS, NAV, DEFAULT_PROFILE } from "./data.js";
 import * as DB from "./store.js";
+import { initializeCloudSync, createCloudAccount, signInCloud, signOutCloud, syncCloudNow, cloudSyncConfigured, cloudSyncStatus } from "./sync.js";
 
 const app=document.querySelector("#app");
-let page="home", calendarCursor=new Date(), libraryFilter="Tümü", libraryQuery="", selectedExercise=null, libraryVisibleCount=18;
+let page="home", calendarCursor=new Date();
 const THEME_KEY="form-fitness-theme-v1", themes=["green","red","blue","pink"];
 let activeTheme="green";
 try{const savedTheme=localStorage.getItem(THEME_KEY);if(themes.includes(savedTheme))activeTheme=savedTheme;}catch{}
@@ -14,7 +15,6 @@ const today=DB.today();
 const fmt=(n,d=0)=>Number(n||0).toLocaleString("tr-TR",{maximumFractionDigits:d});
 const allExercises=[...new Map([...PROGRAM.A,...PROGRAM.B,...LIBRARY_EXTRAS].map(ex=>[ex.id,ex])).values()]
  .map(ex=>({...ex,searchText:`${ex.name} ${ex.muscle} ${ex.equipment}`.toLocaleLowerCase("tr-TR")}));
-const LIBRARY_PAGE_SIZE=18;
 function planFor(date){const type=DB.workoutType(date);return type?PROGRAM[type]:null;}
 function sessionLabel(date){const p=planFor(date);return p?`Antrenman ${DB.getState().logs[date]?.type||DB.workoutType(date)}`:"Dinlenme / serbest gün";}
 function progressFor(date){const log=DB.getState().logs[date];if(!log)return 0;const all=PROGRAM[log.type].flatMap(x=>log.exercises[x.id]?.sets||[]);return all.length?Math.round(all.filter(s=>s.done).length/all.length*100):0;}
@@ -38,12 +38,12 @@ function shell(){
  app.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>navigate(b.dataset.page)));
  renderPage();
 }
-function navigate(p){page=p;shell();window.scrollTo({top:0,behavior:"smooth"});}
+function navigate(p){if(p==="library"){window.location.href="./movement-library/";return;}page=p;shell();window.scrollTo({top:0,behavior:"smooth"});}
 function card(title,sub,body,extra=""){return `<section class="card ${extra}"><div class="card-head"><div><h2>${title}</h2>${sub?`<p>${sub}</p>`:""}</div></div>${body}</section>`;}
 function stat(label,value,unit,icon,trend=""){return `<div class="stat-card"><div class="stat-top"><span>${label}</span><i>${icon}</i></div><div class="stat-value">${value}<small>${unit||""}</small></div>${trend?`<div class="stat-foot">${trend}</div>`:""}</div>`;}
 function renderPage(){
  const el=$("#page-content");
- const render={home:renderHome,calendar:renderCalendar,workout:renderWorkout,library:renderLibrary,weight:renderWeight,nutrition:renderNutrition,achievements:renderAchievements,profile:renderProfile}[page]||renderHome;
+ const render={home:renderHome,calendar:renderCalendar,workout:renderWorkout,weight:renderWeight,nutrition:renderNutrition,achievements:renderAchievements,profile:renderProfile}[page]||renderHome;
  el.innerHTML=render(); bindPage();
 }
 function renderHome(){
@@ -98,41 +98,6 @@ function renderCalendar(){
  return `<div class="calendar-layout"><div class="card calendar-card"><div class="calendar-toolbar"><button class="icon-button" data-month="-1">‹</button><h2>${new Intl.DateTimeFormat("tr-TR",{month:"long",year:"numeric"}).format(calendarCursor)}</h2><button class="icon-button" data-month="1">›</button></div><div class="calendar-grid">${["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"].map(x=>`<div class="cal-weekday">${x}</div>`).join("")}${cells.join("")}</div><div class="calendar-legend"><span><i class="legend-dot"></i> Antrenman</span><span><i class="legend-dot done"></i> Tamamlandı</span><span><i class="legend-today"></i> Bugün</span></div></div>
  <div class="card selected-day"><div class="eyebrow green">SEÇİLİ GÜN</div><h2>${DB.formatDate(sel,{weekday:"long",day:"numeric",month:"long"})}</h2>${t?`<div class="selected-workout"><span class="type-badge">${t}</span><b>${t==="A"?"Tam Vücut A":"Tam Vücut B"}</b><small>${PROGRAM[t].length} hareket · ${log?progressFor(sel):0}% tamamlandı</small></div><ul class="mini-ex-list">${PROGRAM[t].map(ex=>`<li>${ex.name}<small>${(log?.exercises[ex.id]?.sets.length||ex.sets)} × ${ex.reps}</small></li>`).join("")}</ul><button class="btn btn-primary full" data-open-workout="${sel}">Bu antrenmanı aç →</button>`:`<div class="empty-state compact"><div class="empty-icon">☀</div><b>Dinlenme günü</b><p>Toparlanma da programın bir parçası.</p></div>`}</div></div>`;
 }
-function exerciseCategory(ex){
- const m=ex.muscle.toLocaleLowerCase("tr-TR");
- if(m.includes("göğüs")) return "Göğüs";
- if(m.includes("sırt")) return "Sırt";
- if(m.includes("bacak")||m.includes("kalça")||m.includes("baldır")) return "Bacak";
- if(m.includes("omuz")) return "Omuz";
- if(m.includes("biceps")||m.includes("triceps")||m.includes("kol")||m.includes("ön kol")) return "Kol";
- return "Diğer";
-}
-function filteredLibrary(){
- const query=libraryQuery.trim().toLocaleLowerCase("tr-TR");
- return allExercises.filter(ex=>(libraryFilter==="Tümü"||exerciseCategory(ex)===libraryFilter)&&(!query||ex.searchText.includes(query)));
-}
-function renderLibrary(){
- const categories=["Tümü","Göğüs","Sırt","Bacak","Omuz","Kol","Diğer"];
- const list=filteredLibrary();
- const detail=selectedExercise?allExercises.find(e=>e.id===selectedExercise):null;
- return `<div class="library-intro"><div><h2>Hareketleri doğru öğren.</h2><p>Programındaki hareketleri keşfet; hedef kası, ekipmanı ve doğru tekniği adım adım öğren.</p></div><div class="library-count">${allExercises.length}<small>HAREKET</small></div></div>
- ${detail?`<div class="card detail-card"><button class="text-button" data-close-detail>← Tüm hareketler</button><div class="detail-hero"><div class="exercise-symbol big">◈</div><div><div class="eyebrow green">${esc(detail.muscle)} · ${exerciseCategory(detail)}</div><h2>${esc(detail.name)}</h2><p>${esc(detail.equipment)}</p></div></div><div class="movement-demo" role="img" aria-label="${esc(detail.name)} için döngülü hareket animasyonu"><div class="movement-demo-head"><b>Hareket canlandırması</b><span>Döngülü görsel rehber</span></div>${renderExerciseAnimation(detail)}<p>Bu animasyon hareket yolunu gösterir. Tekniği aşağıdaki adımlarla kontrol et.</p></div><div class="detail-columns"><div><h3>Nasıl yapılır?</h3><ol class="instruction-list">${detail.steps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol></div><div class="tip-box"><b>Teknik ipuçları</b><ul>${detail.cues.map(c=>`<li>${esc(c)}</li>`).join("")}</ul><small>Program önerisi: ${detail.sets} set · ${detail.reps} tekrar · ${detail.rest} sn dinlenme</small><p class="library-load">Başlangıç yükü: ${esc(detail.load)}</p></div></div></div>`:
- `<label class="library-search"><span>⌕</span><input type="search" id="library-search" placeholder="Hareket veya kas grubu ara…" value="${esc(libraryQuery)}" autocomplete="off"></label>
- <div class="filter-row">${categories.map(m=>`<button class="filter-chip ${libraryFilter===m?"active":""}" data-filter="${m}">${m}</button>`).join("")}</div>
- <div id="library-results">${renderLibraryResults(list)}</div>`}`;
-}
-function renderExerciseAnimation(ex){
- const id=ex.id.toLowerCase();
- if(/hip-thrust|glute-bridge/.test(id))return `<div class="motion-stage motion-hip"><svg viewBox="0 0 320 150" aria-hidden="true"><path class="motion-floor" d="M32 128H288"/><path class="motion-bench" d="M38 101h57v12H38zm8 12v15m41-15v15"/><circle cx="108" cy="87" r="9"/><path class="motion-hip-torso" d="M115 87l46 13 24-15"/><path class="motion-hip-legs" d="M161 100l31 17 38-1m-38-1 13-27 25 0"/><path class="motion-arms" d="M120 91l-5 25m15-22-8 22"/><path class="motion-path" d="M150 103q20-35 42-8"/></svg><span>Omuzlarını sehpada tut · kalçanı kaldır ve kontrollü indir</span></div>`;
- const isHinge=/romanian-deadlift|hip-hinge|good-morning/.test(id),isLower=exerciseCategory(ex)==="Bacak",isCore=/plank|dead-bug|cable-crunch/i.test(id),isPush=/press|push|fly/i.test(id);
- const motion=isCore?"core":isHinge?"hinge":isLower?"lower":isPush?"push":"pull";
- return `<div class="motion-stage motion-${motion}"><svg viewBox="0 0 320 150" aria-hidden="true"><path class="motion-floor" d="M32 128H288"/><g class="motion-body"><circle cx="160" cy="29" r="12"/><path d="M160 42v42"/><g class="motion-arms"><path d="M160 52l-37 18-18 20m55-38 37 18 18 20"/></g><g class="motion-legs"><path d="M160 84l-23 24 2 19m21-43 23 24-2 19"/></g><path class="motion-weight" d="M98 88v18m-5-13h10m119-5v18m-5-13h10"/></g><path class="motion-path" d="M110 58q-18-23 0-40m100 40q18-23 0-40"/></svg><span>${isCore?"Gövdeyi kontrollü sabitle":isHinge?"Kalçanı geriye al · sırtını nötr tut":isLower?"Kontrollü in · güçlü kalkış":isPush?"İt · kontrollü başlangıca dön":"Çek · kontrollü bırak"}</span></div>`;
-}
-function renderLibraryResults(list){
- const visible=list.slice(0,libraryVisibleCount);
- if(!list.length)return `<div class="empty-state"><div class="empty-icon">⌕</div><b>Hareket bulunamadı</b><p>Arama kelimesini veya kas grubu filtresini değiştir.</p></div>`;
- return `<div class="library-grid">${visible.map(ex=>`<button class="library-card" data-exercise="${ex.id}"><div class="library-card-top"><span class="exercise-symbol">${exerciseCategory(ex)==="Bacak"?"◒":exerciseCategory(ex)==="Sırt"?"↗":"◈"}</span><span class="arrow">↗</span></div><b>${esc(ex.name)}</b><small>${esc(ex.muscle)} · ${esc(ex.equipment)}</small><div class="library-card-bottom"><span>${ex.sets} × ${ex.reps}</span><span>Tekniği gör →</span></div></button>`).join("")}</div>${list.length>visible.length?`<button class="btn btn-secondary library-load-more" data-library-more>Daha fazla göster (${visible.length}/${list.length})</button>`:""}`;
-}
 function renderWeight(){
  const st=DB.getState(),weights=st.weights,latest=weights.at(-1)?.weight??st.profile.currentWeight,first=weights[0]?.weight??st.profile.startWeight,delta=latest-first;
  const points=weights.slice(-12),min=Math.min(...points.map(p=>p.weight),st.profile.targetWeight)-1,max=Math.max(...points.map(p=>p.weight),st.profile.targetWeight)+1;
@@ -164,9 +129,10 @@ function renderAchievements(){
  `;
 }
 function renderProfile(){
- const p=DB.getState().profile;
+ const p=DB.getState().profile,syncState=cloudSyncStatus(),signedIn=["synced","syncing"].includes(syncState.state);
  return `<div class="profile-layout">${card("Kişisel profil","Programın bu bilgilere göre düzenlenir.",`<form id="profile-form" class="form-stack"><label>Adın<input name="name" value="${esc(p.name)}"></label><label>Program başlangıç tarihi<input name="startDate" type="date" value="${esc(p.startDate||today)}"></label><div class="form-row"><label>Boy (cm)<input name="height" type="number" value="${p.height}"></label><label>Başlangıç kilosu (kg)<input name="startWeight" type="number" step=".1" value="${p.startWeight}"></label></div><div class="form-row"><label>Hedef kilo (kg)<input name="targetWeight" type="number" step=".1" value="${p.targetWeight}"></label><label>Günlük kalori hedefi<input name="calories" type="number" value="${p.calories}"></label></div><label>Günlük protein hedefi (g)<input name="protein" type="number" value="${p.protein}"></label><fieldset><legend>Antrenman günleri (3 gün seç)</legend>${[["1","Pazartesi"],["2","Salı"],["3","Çarşamba"],["4","Perşembe"],["5","Cuma"],["6","Cumartesi"],["0","Pazar"]].map(([v,l])=>`<label class="inline-check"><input type="checkbox" name="days" value="${v}" ${p.days.includes(v)?"checked":""}>${l}</label>`).join("")}</fieldset><button class="btn btn-primary">Profili kaydet</button></form>`)}
- ${card("Veri yedekleme","Kayıtların bu cihazın tarayıcısında saklanır. Düzenli yedek al.",`<div class="backup-actions"><button class="btn btn-secondary" id="export-data">↓ Yedeği indir (JSON)</button><label class="btn btn-secondary file-button">↑ Yedek yükle<input type="file" id="import-data" accept="application/json" hidden></label></div><p class="muted small">Bu sürümde kullanıcı hesabı ve bulut eşitlemesi yoktur. Tarayıcı verilerini temizlemek kayıtları silebilir.</p>`)}
+ ${card("Telefon ve bilgisayar eşitlemesi","Aynı hesapla giriş yapınca set işaretlerin ve antrenman günlerin cihazların arasında eşitlenir.",`<div class="sync-panel"><p class="sync-status" id="sync-status" role="status">${esc(syncState.message)}</p><p class="sync-account" id="sync-account" ${syncState.email?"":"hidden"}>${esc(syncState.email)}</p><form id="sync-auth-form" class="form-stack" ${signedIn?"hidden":""}><label>E-posta<input name="email" type="email" autocomplete="email" required ${cloudSyncConfigured()?"":"disabled"}></label><label>Şifre<input name="password" type="password" autocomplete="current-password" minlength="8" required ${cloudSyncConfigured()?"":"disabled"}></label><label class="sync-consent"><input name="syncConsent" type="checkbox" required ${cloudSyncConfigured()?"":"disabled"}><span>Set tamamlanma işaretlerimin ve antrenman tarihlerimin Supabase bulutunda saklanıp cihazlarım arasında eşitlenmesini kabul ediyorum. Profil, kilo, ölçüm ve beslenme bilgilerim buluta gönderilmez.</span></label><div class="sync-actions"><button class="btn btn-primary" type="submit" ${cloudSyncConfigured()?"":"disabled"}>Giriş yap</button><button class="btn btn-secondary" type="button" id="sync-create-account" ${cloudSyncConfigured()?"":"disabled"}>Hesap oluştur</button></div></form><div class="sync-actions"><button class="btn btn-secondary" type="button" id="sync-now" ${signedIn?"":"hidden"}>Şimdi eşitle</button><button class="text-button" type="button" id="sync-signout" ${signedIn?"":"hidden"}>Çıkış yap</button></div><small class="muted">İlk eşitlemede yerel bilgiler silinmez; antrenman ilerlemesi birleştirilir. Profil, kilo, ölçüm ve beslenme kayıtları bu cihazda kalır.</small></div>`)}
+ ${card("Veri yedekleme","JSON yedeği ek bir güvenlik kopyası olarak saklanır.",`<div class="backup-actions"><button class="btn btn-secondary" id="export-data">↓ Yedeği indir (JSON)</button><label class="btn btn-secondary file-button">↑ Yedek yükle<input type="file" id="import-data" accept="application/json" hidden></label></div><p class="muted small">Bulut eşitlemesi için önce hesabına giriş yap. Bu cihazdaki kayıtların ayrıca yerelde tutulur.</p>`)}
  ${card("12 haftalık program","Başlangıç seviyesine uygun, haftada 3 gün A/B tam vücut planı.",`<div class="program-phases"><div><b>1–2. hafta</b><span>Teknik öğrenimi · 2 set · hafif yük</span></div><div><b>3–4. hafta</b><span>Hareket başına 3 set</span></div><div><b>5. hafta</b><span>Toparlanma · setleri 1’e indir</span></div><div><b>6–12. hafta</b><span>Bileşik hareketlerde 3, yardımcı hareketlerde 2 set; kontrollü yük artışı</span></div><div><b>9–12. hafta</b><span>Performans değerlendirmesi ve istikrarlı gelişim</span></div></div>`)}
  </div>`;
 }
@@ -176,23 +142,18 @@ function bindPage(){
  app.querySelectorAll("[data-date]").forEach(b=>b.addEventListener("click",()=>{DB.setSelectedDate(b.dataset.date);if(page==="calendar")renderPage();else navigate("workout");}));
  app.querySelectorAll("[data-open-workout]").forEach(b=>b.addEventListener("click",()=>{DB.setSelectedDate(b.dataset.openWorkout);navigate("workout");}));
  app.querySelectorAll("[data-month]").forEach(b=>b.addEventListener("click",()=>{calendarCursor.setMonth(calendarCursor.getMonth()+Number(b.dataset.month));renderPage();}));
- app.querySelectorAll("[data-exercise]:not(.library-card)").forEach(b=>b.addEventListener("click",()=>{selectedExercise=b.dataset.exercise;const ex=allExercises.find(x=>x.id===selectedExercise);openExerciseModal(ex);}));
- app.querySelectorAll("[data-close-detail]").forEach(b=>b.addEventListener("click",()=>{selectedExercise=null;renderPage();}));
- app.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{libraryFilter=b.dataset.filter;libraryVisibleCount=LIBRARY_PAGE_SIZE;renderPage();}));
+ app.querySelectorAll("[data-exercise]").forEach(b=>b.addEventListener("click",()=>{const ex=allExercises.find(x=>x.id===b.dataset.exercise);if(ex)openExerciseModal(ex);}));
  app.querySelectorAll("[data-theme-select]").forEach(b=>b.addEventListener("click",()=>{
   activeTheme=b.dataset.themeSelect;document.documentElement.dataset.theme=activeTheme;
   try{localStorage.setItem(THEME_KEY,activeTheme);}catch{}
   app.querySelectorAll("[data-theme-select]").forEach(x=>{const selected=x.dataset.themeSelect===activeTheme;x.classList.toggle("active",selected);x.setAttribute("aria-pressed",String(selected));});
  }));
- $("#library-search")?.addEventListener("input",e=>{libraryQuery=e.target.value;libraryVisibleCount=LIBRARY_PAGE_SIZE;const results=$("#library-results");if(results)results.innerHTML=renderLibraryResults(filteredLibrary());});
- $("#library-results")?.addEventListener("click",e=>{
-  const exercise=e.target.closest("[data-exercise]");
-  if(exercise){selectedExercise=exercise.dataset.exercise;renderPage();return;}
-  if(!e.target.closest("[data-library-more]"))return;
-  libraryVisibleCount+=LIBRARY_PAGE_SIZE;const results=$("#library-results");results.innerHTML=renderLibraryResults(filteredLibrary());
- });
  app.querySelectorAll("[data-set]").forEach(inp=>inp.addEventListener("change",()=>{DB.updateSet(DB.getState().selectedDate||today,inp.dataset.set,Number(inp.dataset.index),{done:inp.checked});renderPage();}));
  app.querySelectorAll("[data-weight],[data-reps]").forEach(inp=>inp.addEventListener("change",()=>{const date=DB.getState().selectedDate||today,log=DB.ensureLog(date);const ex=inp.dataset.weight||inp.dataset.reps;const idx=Number(inp.dataset.index);const key=inp.hasAttribute("data-weight")?"weight":"reps";DB.updateSet(date,ex,idx,{[key]:inp.value});}));
+ $("#sync-auth-form")?.addEventListener("submit",async e=>{e.preventDefault();const form=e.currentTarget;try{await signInCloud(form.elements.email.value.trim(),form.elements.password.value);form.reset();}catch(error){showCloudError(error);}});
+ $("#sync-create-account")?.addEventListener("click",async()=>{const form=$("#sync-auth-form");if(!form.reportValidity())return;try{await createCloudAccount(form.elements.email.value.trim(),form.elements.password.value);form.reset();}catch(error){showCloudError(error);}});
+ $("#sync-signout")?.addEventListener("click",async()=>{try{await signOutCloud();renderPage();}catch(error){showCloudError(error);}});
+ $("#sync-now")?.addEventListener("click",async()=>{try{await syncCloudNow();toast("Cihazların eşitlendi.");}catch(error){showCloudError(error);}});
  $("#weight-form")?.addEventListener("submit",e=>{e.preventDefault();const f=new FormData(e.currentTarget);const ok=DB.addWeight(f.get("weight"),f.get("date"));if(ok){renderPage();toast("Kilo kaydedildi.");}});
  $("#measure-form")?.addEventListener("submit",e=>{e.preventDefault();const data=Object.fromEntries(new FormData(e.currentTarget));DB.addMeasurement(Object.fromEntries(Object.entries(data).filter(([,v])=>v)));renderPage();toast("Ölçümlerin kaydedildi.");});
  $("#food-form")?.addEventListener("submit",e=>{e.preventDefault();const f=new FormData(e.currentTarget),n=DB.getState().nutrition[today]||{};const meal={meal:f.get("meal"),calories:Number(f.get("calories")||0),protein:Number(f.get("protein")||0)};DB.updateNutrition(today,{calories:(n.calories||0)+meal.calories,protein:(n.protein||0)+meal.protein,meals:[...(n.meals||[]),meal]});renderPage();toast("Öğün eklendi.");});
@@ -205,6 +166,7 @@ function openExerciseModal(ex){
  const modal=document.createElement("div");modal.className="modal-backdrop";modal.innerHTML=`<div class="modal"><button class="modal-close">×</button><div class="eyebrow green">${esc(ex.muscle)}</div><h2>${ex.name}</h2><p class="muted">${ex.equipment}</p><h3>Uygulama</h3><ol class="instruction-list">${ex.steps.map(s=>`<li>${s}</li>`).join("")}</ol><div class="tip-box"><b>Dikkat</b><ul>${ex.cues.map(c=>`<li>${c}</li>`).join("")}</ul></div></div>`;
  document.body.append(modal);modal.addEventListener("click",e=>{if(e.target===modal||e.target.closest(".modal-close"))modal.remove();});
 }
+function showCloudError(error){const status=$("#sync-status");if(status)status.textContent=`Eşitleme hatası: ${error.message}`;toast(`Eşitleme hatası: ${error.message}`);}
 function toast(msg){const t=document.createElement("div");t.className="toast";t.textContent=msg;document.body.append(t);setTimeout(()=>t.remove(),2200);}
 function mountAssistant(){
  document.body.insertAdjacentHTML("beforeend",`<button class="chat-launcher" id="chat-launcher" aria-label="Yardım sohbetini aç" aria-expanded="false">?<span>Yardım</span></button><section class="chat-panel" id="chat-panel" aria-label="FORM Fitness yardım sohbeti" hidden><header><div><b>FORM Yardım</b><small>Uygulama içi rehber</small></div><button type="button" id="chat-close" aria-label="Sohbeti kapat">×</button></header><div class="chat-messages" id="chat-messages" aria-live="polite"><p class="chat-bubble assistant">Merhaba! Hareket tekniği, setler, takvim veya uygulama kullanımı hakkında sorabilirsin.</p></div><div class="chat-suggestions"><button type="button" data-chat-prompt="Antrenman programım nerede?">Programım nerede?</button><button type="button" data-chat-prompt="Bir hareketi nasıl yaparım?">Hareket tekniği</button></div><form id="chat-form"><label class="sr-only" for="chat-input">Sorunu yaz</label><input id="chat-input" autocomplete="off" placeholder="Nasıl yardımcı olayım?" required><button class="btn btn-primary" aria-label="Soruyu gönder">Gönder</button></form></section>`);
@@ -229,6 +191,16 @@ function assistantAnswer(question){
  return "Hareket tekniği, antrenman setleri, takvim, beslenme, renk teması veya veri yedeği hakkında sorabilirsin. Hareket adı yazarsan o hareketin adımlarını da bulmaya çalışırım.";
 }
 window.addEventListener("formstate",()=>{const active=document.activeElement;if(!active||!["INPUT","TEXTAREA"].includes(active.tagName))renderPage();});
+window.addEventListener("cloudsync",event=>{
+ const info=event.detail||{},status=$("#sync-status"),account=$("#sync-account"),form=$("#sync-auth-form"),syncButton=$("#sync-now"),signOutButton=$("#sync-signout");
+ if(status)status.textContent=info.message||"";
+ if(account){account.textContent=info.email||"";account.hidden=!info.email;}
+ const signedIn=Boolean(info.email&&["synced","syncing"].includes(info.state));
+ if(form)form.hidden=signedIn;
+ if(syncButton)syncButton.hidden=!signedIn;
+ if(signOutButton)signOutButton.hidden=!signedIn;
+});
 shell();
 mountAssistant();
+initializeCloudSync();
 if("serviceWorker" in navigator && location.protocol!=="file:"){navigator.serviceWorker.register("./sw.js").catch(()=>{});}
