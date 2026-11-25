@@ -9,12 +9,16 @@ const mondayISO = (date = new Date()) => {
 const fresh = () => ({
   profile:{...DEFAULT_PROFILE,startDate:mondayISO()},
   logs:{}, weights:[{date:todayISO(),weight:63}], measurements:[],
-  nutrition:{}, selectedDate:todayISO(), achievements:[], createdAt:new Date().toISOString()
+  nutrition:{}, selectedDate:todayISO(), achievements:[], createdAt:new Date().toISOString(), updatedAt:new Date().toISOString()
 });
 let state;
 try { state = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch { state = fresh(); }
-function save(){ try { localStorage.setItem(KEY,JSON.stringify(state)); } catch(e){ console.warn("Yerel kayıt kullanılamıyor",e); } window.dispatchEvent(new CustomEvent("formstate",{detail:state})); }
+function save(source="local"){ state.updatedAt=new Date().toISOString(); try { localStorage.setItem(KEY,JSON.stringify(state)); } catch(e){ console.warn("Yerel kayıt kullanılamıyor",e); } window.dispatchEvent(new CustomEvent("formstate",{detail:{state,source}})); }
 export function getState(){ return state; }
+export function replaceState(next,source="remote"){
+  if(!next||typeof next!=="object"||!next.profile||!next.logs)throw new Error("Geçersiz antrenman verisi");
+  state=next;save(source);
+}
 export function updateProfile(p){ state.profile={...state.profile,...p}; save(); }
 export function setSelectedDate(date){ state.selectedDate=date; save(); }
 export function programWeek(dateStr){
@@ -48,12 +52,22 @@ export function ensureLog(dateStr){
     });
     save();
   }
-  return state.logs[dateStr];
+  const log=state.logs[dateStr];
+  if(!log)return null;
+  // Bring remotely merged or older logs up to the current exercise/set shape.
+  log.exercises ||= {};
+  (PROGRAM[log.type]||[]).forEach(ex=>{
+    const exercise=log.exercises[ex.id] ||= {sets:[]};
+    exercise.sets ||= [];
+    const expected=setsForExercise(ex,dateStr);
+    while(exercise.sets.length<expected)exercise.sets.push({done:false,weight:"",reps:""});
+  });
+  return log;
 }
 export function updateSet(dateStr,exerciseId,setIndex,patch){
   const log=ensureLog(dateStr); if(!log) return;
   const s=log.exercises[exerciseId].sets[setIndex];
-  Object.assign(s,patch);
+  Object.assign(s,patch,{updatedAt:new Date().toISOString()});log.updatedAt=new Date().toISOString();
   const all=PROGRAM[log.type].every(ex=>log.exercises[ex.id].sets.every(x=>x.done));
   log.completedAt=all?new Date().toISOString():null;
   save();
