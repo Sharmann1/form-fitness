@@ -211,4 +211,11 @@ window.addEventListener("cloudsync",event=>{
 shell();
 mountAssistant();
 initializeCloudSync();
-if("serviceWorker" in navigator && location.protocol!=="file:"){navigator.serviceWorker.register("./sw.js").catch(()=>{});}
+if("serviceWorker" in navigator && location.protocol!=="file:"){
+ const refreshKey="form-fitness-sw-v10-refreshed";
+ navigator.serviceWorker.addEventListener("controllerchange",()=>{
+  try{if(sessionStorage.getItem(refreshKey))return;sessionStorage.setItem(refreshKey,"1");}catch{return;}
+  location.reload();
+ });
+ navigator.serviceWorker.register("./sw.js",{updateViaCache:"none"}).then(registration=>registration.update()).catch(()=>{});
+}
