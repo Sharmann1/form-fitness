@@ -35,13 +35,16 @@ Ardından `http://localhost:8000` adresini açın.
 - XP puanları set tamamlama oranından türetilir; çift puan yoktur
 - Hareket kütüphanesi ve yazılı uygulama adımları
 - Kilo geçmişi grafiği ve vücut ölçümleri
-- Kalori, protein, su ve öğün kaydı
+- 60'tan fazla yaygın yiyecekte arama; seçilen besin ve gramaja göre yaklaşık kalori/protein hesabı
+- Öğün çeşitliliğine dayalı günlük beslenme özeti, su ve öğün kaydı
 - Rozetler ve seviye
 - JSON yedek dışa/içe aktarma
 - Mobil alt menü ve PWA önbelleği
 
 ## Veri ve güvenlik notu
-Bu sürüm kullanıcı hesabı veya bulut veritabanı içermez. Kayıtlar aynı tarayıcının LocalStorage alanında kalır. Tarayıcı verisi temizlenirse kaybolabilir; Profil bölümünden düzenli JSON yedeği alın. Cihazlar arasında eşitleme ve güvenli çok kullanıcılı hesap için ayrıca backend (ör. Supabase/Firebase) kurulmalıdır.
+Profil bölümünden Supabase hesabı açıp giriş yaptığında antrenman günleri ve set işaretleri cihazlar arasında eşitlenir. Profil, kilo, ölçüm ve beslenme kayıtları bu cihazın LocalStorage alanında kalır. Tarayıcı verisi temizlenirse bu yerel kayıtlar kaybolabilir; Profil bölümünden düzenli JSON yedeği alın.
+
+Besin değerleri yaklaşık değerlerdir. Karışık tarifler ve markalı ürünler için porsiyon ve ürün etiketini kontrol edin; beslenme özeti tıbbi değerlendirme değildir.
 
 ## Program güvenliği
 Başlangıç ağırlıkları yalnızca yaklaşık deneme aralıklarıdır; makineye ve kişiye göre değişir. İlk antrenmanlarda eğitmenden teknik kontrolü alın. Ağrı, baş dönmesi veya olağandışı belirti olursa hareketi bırakın. Bu uygulama tıbbi değerlendirme yerine geçmez.

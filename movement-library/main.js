@@ -6,7 +6,7 @@ const escapeHtml = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&
 const exercises = [...new Map([...PROGRAM.A, ...PROGRAM.B, ...LIBRARY_EXTRAS].map(ex => [ex.id, ex])).values()]
   .map(ex => ({ ...ex, searchText: `${ex.name} ${ex.muscle} ${ex.equipment}`.toLocaleLowerCase("tr-TR") }));
 const categories = ["Tümü", "Göğüs", "Sırt", "Bacak", "Omuz", "Kol", "Diğer"];
-const state = { filter: "Tümü", query: "", selected: null, limit: 18 };
+const state = { filter: "Tümü", query: "", selected: null, limit: 18, side: "front" };
 const content = $("#library-content");
 const count = $("#movement-count");
 try { const theme = localStorage.getItem("form-fitness-theme-v1"); if (["green", "red", "blue", "pink"].includes(theme)) document.documentElement.dataset.theme = theme; } catch {}
@@ -25,9 +25,13 @@ function results() {
   return exercises.filter(ex => (state.filter === "Tümü" || category(ex) === state.filter) && (!query || ex.searchText.includes(query)));
 }
 function symbol(ex) { return category(ex) === "Bacak" ? "◒" : category(ex) === "Sırt" ? "↗" : "◈"; }
+function cardPoster(ex) {
+  const demo = EXERCISE_DEMOS[ex.id];
+  return demo?.posterUrl || (demo?.kind === "youtube" ? `https://img.youtube.com/vi/${encodeURIComponent(demo.videoId)}/mqdefault.jpg` : "");
+}
 function cards(list) {
   const shown = list.slice(0, state.limit);
-  return `${shown.length ? `<div class="movement-grid">${shown.map(ex => `<button class="movement-card" type="button" data-open="${escapeHtml(ex.id)}"><span class="movement-card-top"><span class="movement-icon">${symbol(ex)}</span><span class="muscle-tag">${escapeHtml(category(ex))}</span></span><b>${escapeHtml(ex.name)}</b><small>${escapeHtml(ex.muscle)} · ${escapeHtml(ex.equipment)}</small><span class="movement-card-foot"><span>${ex.sets} × ${escapeHtml(ex.reps)}</span><span>Tekniği gör →</span></span></button>`).join("")}</div>` : `<div class="empty-state"><b>Bu aramayla hareket bulunamadı.</b><br>Başka bir hareket adı veya kas grubu dene.</div>`}${list.length > shown.length ? `<button class="load-more" type="button" data-more>Daha fazla göster (${shown.length}/${list.length})</button>` : ""}`;
+  return `${shown.length ? `<div class="movement-grid">${shown.map(ex => {const poster=cardPoster(ex);return `<button class="movement-card" type="button" data-open="${escapeHtml(ex.id)}"><span class="movement-card-visual">${poster? `<img src="${escapeHtml(poster)}" alt="" loading="lazy" decoding="async" onerror="this.hidden=true">`:""}<i class="movement-card-level">${ex.sets<=2?"BAŞLANGIÇ":"ORTA"}</i><span class="movement-card-visual-icon">${symbol(ex)}</span><span class="movement-card-visual-play">▶</span></span><span class="movement-card-info"><span class="muscle-tag">${escapeHtml(category(ex))} · ${escapeHtml(ex.equipment)}</span><b>${escapeHtml(ex.name)}</b><span class="movement-card-foot"><span>${ex.sets} × ${escapeHtml(ex.reps)}</span><span>Tekniği gör →</span></span></span></button>`;}).join("")}</div>` : `<div class="empty-state"><b>Bu aramayla hareket bulunamadı.</b><br>Başka bir hareket adı veya kas grubu dene.</div>`}${list.length > shown.length ? `<button class="load-more" type="button" data-more>Daha fazla göster (${shown.length}/${list.length})</button>` : ""}`;
 }
 function animation(ex) {
   const demo = EXERCISE_DEMOS[ex.id];
@@ -51,7 +55,7 @@ function render() {
     content.innerHTML = exercise ? renderDetail(exercise) : `<div class="empty-state">Hareket bulunamadı. <button type="button" data-back>Geri dön</button></div>`;
     return;
   }
-  content.innerHTML = `<div class="library-controls"><label class="search"><span>⌕</span><input type="search" id="movement-search" placeholder="Hareket, kas grubu veya ekipman ara…" value="${escapeHtml(state.query)}" autocomplete="off"></label><div class="filters" role="group" aria-label="Kas grubu filtresi">${categories.map(name => `<button class="filter" type="button" data-filter="${name}" aria-pressed="${state.filter === name}">${name}</button>`).join("")}</div></div><div id="movement-results">${cards(results())}</div>`;
+  content.innerHTML = `<div class="library-explorer"><aside class="muscle-panel"><div class="muscle-panel-heading"><div><span class="eyebrow">HAREKET HARİTASI</span><b>Kas grubunu keşfet</b></div><div class="body-side-toggle"><button type="button" data-body-side="front" class="${state.side!=="back"?"active":""}">Ön</button><button type="button" data-body-side="back" class="${state.side==="back"?"active":""}">Arka</button></div></div><div class="body-figure ${state.side==="back"?"back":"front"}" aria-hidden="true"><svg viewBox="0 0 160 290"><circle cx="80" cy="22" r="13"/><path class="figure-neck" d="M72 37l-4 12m20-12 4 12"/><path class="figure-torso" d="M66 49q-21 2-28 19l8 46 11 12 2 44h42l2-44 11-12 8-46q-7-17-28-19l-14 12z"/><path class="figure-arm" d="M38 67L22 102l-12 43m36-25-13 27-8 38m97-118 16 35 12 43m-37-23 13 27 8 38"/><path class="figure-leg" d="M57 164l-2 56-3 34m53-90 2 56 3 34m-58 0-2 30m60-30 2 30"/><path class="figure-muscle" d="${state.side==="back"?"M59 68q21 20 42 0m-40 31h38m-42 15q22 13 48 0m-43 37 8 15m29-15-8 15m-31 6h12m22 0h-12":"M59 68q21 15 42 0m-37 27q16 12 32 0m-39 15q23 15 46 0m-35 23q12 8 24 0m-21 41-5 18m35-18 5 18"}"/></svg></div><div class="filters" role="group" aria-label="Kas grubu filtresi">${categories.map(name => `<button class="filter" type="button" data-filter="${name}" aria-pressed="${state.filter === name}"><span>${name==="Tümü"?"✦":symbol({muscle:name})}</span>${name}</button>`).join("")}</div><div class="muscle-panel-foot"><span>${exercises.length}</span> egzersiz · <span>40</span> teknik video</div></aside><section class="library-results-column"><div class="library-controls"><label class="search"><span>⌕</span><input type="search" id="movement-search" placeholder="Hareket, kas grubu veya ekipman ara…" value="${escapeHtml(state.query)}" autocomplete="off"></label><span class="movement-result-count">${results().length} sonuç</span></div><div id="movement-results">${cards(results())}</div></section></div>`;
 }
 content.addEventListener("error", event => {
   const video = event.target.closest?.("[data-demo-video]");
@@ -66,10 +70,12 @@ content.addEventListener("playing", event => {
   const status = content.querySelector("[data-video-status]");
   if (status) status.textContent = "Kısa teknik gösterim";
 }, true);
-content.addEventListener("input", event => { if (event.target.id !== "movement-search") return; state.query = event.target.value; state.limit = 18; $("#movement-results").innerHTML = cards(results()); });
+content.addEventListener("input", event => { if (event.target.id !== "movement-search") return; state.query = event.target.value; state.limit = 18; $("#movement-results").innerHTML = cards(results()); $(".movement-result-count").textContent = `${results().length} sonuç`; });
 content.addEventListener("click", event => {
   const filter = event.target.closest("[data-filter]");
   if (filter) { state.filter = filter.dataset.filter; state.limit = 18; render(); return; }
+  const side = event.target.closest("[data-body-side]");
+  if (side) { state.side = side.dataset.bodySide; render(); return; }
   const open = event.target.closest("[data-open]");
   if (open) { state.selected = open.dataset.open; render(); return; }
   if (event.target.closest("[data-back]")) { state.selected = null; render(); return; }
@@ -77,7 +83,7 @@ content.addEventListener("click", event => {
 });
 render();
 if ("serviceWorker" in navigator && location.protocol !== "file:") {
-  const refreshKey = "form-fitness-sw-v11-refreshed";
+  const refreshKey = "form-fitness-sw-v12-refreshed";
   navigator.serviceWorker.addEventListener("controllerchange", () => {
     try { if (sessionStorage.getItem(refreshKey)) return; sessionStorage.setItem(refreshKey, "1"); } catch { return; }
     location.reload();
