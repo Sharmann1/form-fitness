@@ -2,7 +2,7 @@ import { PROGRAM, NAV, DEFAULT_PROFILE } from "./data.js";
 import * as DB from "./store.js";
 
 const app=document.querySelector("#app");
-let page="home", calendarCursor=new Date(), libraryFilter="Tümü", selectedExercise=null;
+let page="home", calendarCursor=new Date(), libraryFilter="Tümü", libraryQuery="", selectedExercise=null;
 const $=(s,root=document)=>root.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const dateISO=d=>new Date(d).toISOString().slice(0,10);
@@ -92,14 +92,25 @@ function renderCalendar(){
  return `<div class="calendar-layout"><div class="card calendar-card"><div class="calendar-toolbar"><button class="icon-button" data-month="-1">‹</button><h2>${new Intl.DateTimeFormat("tr-TR",{month:"long",year:"numeric"}).format(calendarCursor)}</h2><button class="icon-button" data-month="1">›</button></div><div class="calendar-grid">${["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"].map(x=>`<div class="cal-weekday">${x}</div>`).join("")}${cells.join("")}</div><div class="calendar-legend"><span><i class="legend-dot"></i> Antrenman</span><span><i class="legend-dot done"></i> Tamamlandı</span><span><i class="legend-today"></i> Bugün</span></div></div>
  <div class="card selected-day"><div class="eyebrow green">SEÇİLİ GÜN</div><h2>${DB.formatDate(sel,{weekday:"long",day:"numeric",month:"long"})}</h2>${t?`<div class="selected-workout"><span class="type-badge">${t}</span><b>${t==="A"?"Tam Vücut A":"Tam Vücut B"}</b><small>${PROGRAM[t].length} hareket · ${log?progressFor(sel):0}% tamamlandı</small></div><ul class="mini-ex-list">${PROGRAM[t].map(ex=>`<li>${ex.name}<small>${(log?.exercises[ex.id]?.sets.length||ex.sets)} × ${ex.reps}</small></li>`).join("")}</ul><button class="btn btn-primary full" data-open-workout="${sel}">Bu antrenmanı aç →</button>`:`<div class="empty-state compact"><div class="empty-icon">☀</div><b>Dinlenme günü</b><p>Toparlanma da programın bir parçası.</p></div>`}</div></div>`;
 }
+function exerciseCategory(ex){
+ const m=ex.muscle.toLocaleLowerCase("tr-TR");
+ if(m.includes("göğüs")) return "Göğüs";
+ if(m.includes("sırt")) return "Sırt";
+ if(m.includes("bacak")||m.includes("kalça")||m.includes("baldır")) return "Bacak";
+ if(m.includes("omuz")) return "Omuz";
+ if(m.includes("biceps")||m.includes("triceps")||m.includes("kol")||m.includes("ön kol")) return "Kol";
+ return "Diğer";
+}
 function renderLibrary(){
- const muscles=["Tümü",...new Set(allExercises.map(e=>e.muscle))];
- const list=allExercises.filter(e=>libraryFilter==="Tümü"||e.muscle===libraryFilter);
+ const categories=["Tümü","Göğüs","Sırt","Bacak","Omuz","Kol","Diğer"];
+ const query=libraryQuery.trim().toLocaleLowerCase("tr-TR");
+ const list=allExercises.filter(ex=>(libraryFilter==="Tümü"||exerciseCategory(ex)===libraryFilter)&&(!query||`${ex.name} ${ex.muscle} ${ex.equipment}`.toLocaleLowerCase("tr-TR").includes(query)));
  const detail=selectedExercise?allExercises.find(e=>e.id===selectedExercise):null;
- return `<div class="library-intro"><div><h2>Hareketleri doğru öğren.</h2><p>Hareket adına dokun; hedef kası, ekipmanı ve adım adım uygulamayı gör.</p></div><div class="library-count">${allExercises.length}<small>HAREKET</small></div></div>
- <div class="filter-row">${muscles.map(m=>`<button class="filter-chip ${libraryFilter===m?"active":""}" data-filter="${esc(m)}">${esc(m)}</button>`).join("")}</div>
- ${detail?`<div class="card detail-card"><button class="text-button" data-close-detail>← Tüm hareketler</button><div class="detail-hero"><div class="exercise-symbol big">◈</div><div><div class="eyebrow green">${esc(detail.muscle)}</div><h2>${detail.name}</h2><p>${detail.equipment}</p></div></div><div class="detail-columns"><div><h3>Nasıl yapılır?</h3><ol class="instruction-list">${detail.steps.map(s=>`<li>${s}</li>`).join("")}</ol></div><div class="tip-box"><b>Teknik ipuçları</b><ul>${detail.cues.map(c=>`<li>${c}</li>`).join("")}</ul><small>Öneri: ${detail.sets} set · ${detail.reps} tekrar · ${detail.rest} sn dinlenme</small></div></div></div>`:
- `<div class="library-grid">${list.map(ex=>`<button class="library-card" data-exercise="${ex.id}"><div class="library-card-top"><span class="exercise-symbol">◈</span><span class="arrow">↗</span></div><b>${ex.name}</b><small>${ex.muscle}</small><div class="library-card-bottom"><span>${(log?.exercises[ex.id]?.sets.length||ex.sets)} × ${ex.reps}</span><span>Detay →</span></div></button>`).join("")}</div>`}`;
+ return `<div class="library-intro"><div><h2>Hareketleri doğru öğren.</h2><p>Programındaki hareketleri keşfet; hedef kası, ekipmanı ve doğru tekniği adım adım öğren.</p></div><div class="library-count">${allExercises.length}<small>HAREKET</small></div></div>
+ ${detail?`<div class="card detail-card"><button class="text-button" data-close-detail>← Tüm hareketler</button><div class="detail-hero"><div class="exercise-symbol big">◈</div><div><div class="eyebrow green">${esc(detail.muscle)} · ${exerciseCategory(detail)}</div><h2>${esc(detail.name)}</h2><p>${esc(detail.equipment)}</p></div></div><div class="detail-columns"><div><h3>Nasıl yapılır?</h3><ol class="instruction-list">${detail.steps.map(s=>`<li>${esc(s)}</li>`).join("")}</ol></div><div class="tip-box"><b>Teknik ipuçları</b><ul>${detail.cues.map(c=>`<li>${esc(c)}</li>`).join("")}</ul><small>Program önerisi: ${detail.sets} set · ${detail.reps} tekrar · ${detail.rest} sn dinlenme</small><p class="library-load">Başlangıç yükü: ${esc(detail.load)}</p></div></div></div>`:
+ `<label class="library-search"><span>⌕</span><input type="search" id="library-search" placeholder="Hareket veya kas grubu ara…" value="${esc(libraryQuery)}" autocomplete="off"></label>
+ <div class="filter-row">${categories.map(m=>`<button class="filter-chip ${libraryFilter===m?"active":""}" data-filter="${m}">${m}</button>`).join("")}</div>
+ ${list.length?`<div class="library-grid">${list.map(ex=>`<button class="library-card" data-exercise="${ex.id}"><div class="library-card-top"><span class="exercise-symbol">${exerciseCategory(ex)==="Bacak"?"◒":exerciseCategory(ex)==="Sırt"?"↗":"◈"}</span><span class="arrow">↗</span></div><b>${esc(ex.name)}</b><small>${esc(ex.muscle)} · ${esc(ex.equipment)}</small><div class="library-card-bottom"><span>${ex.sets} × ${ex.reps}</span><span>Tekniği gör →</span></div></button>`).join("")}</div>`:`<div class="empty-state"><div class="empty-icon">⌕</div><b>Hareket bulunamadı</b><p>Arama kelimesini veya kas grubu filtresini değiştir.</p></div>`}`}`;
 }
 function renderWeight(){
  const st=DB.getState(),weights=st.weights,latest=weights.at(-1)?.weight??st.profile.currentWeight,first=weights[0]?.weight??st.profile.startWeight,delta=latest-first;
@@ -147,6 +158,7 @@ function bindPage(){
  app.querySelectorAll("[data-exercise]").forEach(b=>b.addEventListener("click",()=>{selectedExercise=b.dataset.exercise;if(page==="library")renderPage();else{const ex=allExercises.find(x=>x.id===selectedExercise);openExerciseModal(ex);}}));
  app.querySelectorAll("[data-close-detail]").forEach(b=>b.addEventListener("click",()=>{selectedExercise=null;renderPage();}));
  app.querySelectorAll("[data-filter]").forEach(b=>b.addEventListener("click",()=>{libraryFilter=b.dataset.filter;renderPage();}));
+ $("#library-search")?.addEventListener("input",e=>{const pos=e.target.selectionStart;libraryQuery=e.target.value;const el=$("#page-content");el.innerHTML=renderLibrary();bindPage();const next=$("#library-search");next?.focus();next?.setSelectionRange(pos,pos);});
  app.querySelectorAll("[data-set]").forEach(inp=>inp.addEventListener("change",()=>{DB.updateSet(DB.getState().selectedDate||today,inp.dataset.set,Number(inp.dataset.index),{done:inp.checked});renderPage();}));
  app.querySelectorAll("[data-weight],[data-reps]").forEach(inp=>inp.addEventListener("change",()=>{const date=DB.getState().selectedDate||today,log=DB.ensureLog(date);const ex=inp.dataset.weight||inp.dataset.reps;const idx=Number(inp.dataset.index);const key=inp.hasAttribute("data-weight")?"weight":"reps";DB.updateSet(date,ex,idx,{[key]:inp.value});}));
  $("#weight-form")?.addEventListener("submit",e=>{e.preventDefault();const f=new FormData(e.currentTarget);const ok=DB.addWeight(f.get("weight"),f.get("date"));if(ok){renderPage();toast("Kilo kaydedildi.");}});
